@@ -1,0 +1,13 @@
+Scripts:
+1. deduplicate fastq file
+2. pattern-based filtering
+3. alignment filtering
+5. alignment grouping by position
+4. position masking
+6. orphan discard
+7. read quality filter
+8. deduplication
+
+Notes:
+- Allow the user to switch between un/compression intermediate step and uncompressed intermediate outputs.
+- Pack scripts as a Python package. Provide separate nextflow workflow in a container.

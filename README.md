@@ -1,2 +1,2 @@
 # gpseq-preproc
-Pre-process GPSeq sequencing data
+Preprocessing of GPSeq sequencing data
