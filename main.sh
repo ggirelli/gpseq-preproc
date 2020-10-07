@@ -41,10 +41,13 @@ bowtie2 \
 sambamba view -S mapping/$libid.sam -f bam -t $threads > mapping/$libid.bam
 rm -i mapping/$libid.sam
 sambamba view mapping/$libid.bam -f bam \
-	-F "mapping_quality < 30" -c -t $threads \
+	-F "mapping_quality<30" -c -t $threads \
 	> mapping/$libid.lq_count.txt
+sambamba view mapping/$libid.bam -f bam \
+	-F "ref_name=='chrM'" -c -t $threads \
+	> mapping/$libid.chrM.txt
 sambamba view mapping/$libid.bam -f bam -t $threads \
-	-F "mapping_quality >= 30 and not secondary_alignment and not unmapped and not chimeric" \
+	-F "mapping_quality>=30 and not secondary_alignment and not unmapped and not chimeric and ref_name!='chrM'" \
 	> mapping/$libid.clean.bam
 sambamba view mapping/$libid.clean.bam -f bam -c -t $threads > mapping/$libid.clean_count.txt
 
