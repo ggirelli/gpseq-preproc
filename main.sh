@@ -94,5 +94,5 @@ scripts/umi_dedupl.R \
 mkdir bed
 zcat dedup/$libid.clean.umis_dedupd.txt.gz | \
 	awk 'BEGIN{FS=OFS="\t"}{print $1 FS $2 FS $2 FS "pos_"NR FS $4}' | \
-	gzip > bed > $libid.bed.gz
+	gzip > bed/$libid.bed.gz
 
