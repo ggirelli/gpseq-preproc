@@ -35,7 +35,7 @@ mkdir mapping
 bowtie2 \
 	-x "$bowtie2_ref" fastq_prefix/$libid.fastq.gz \
 	--very-sensitive -L 20 --score-min L,-0.6,-0.2 --end-to-end --reorder -p $threads \
-	-S mapping/$libid.sam &> mapping/$libid.log
+	-S mapping/$libid.sam &> mapping/$libid.mapping.log
 
 # Filter alignment
 sambamba view -S mapping/$libid.sam -f bam -t $threads > mapping/$libid.bam
