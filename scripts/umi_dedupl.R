@@ -53,12 +53,15 @@ setDTthreads(num_proc)
 # Read UMI file ----------------------------------------------------------------
 
 cat(' · Reading UMIs ...\n')
-u <- fread(input, col.names=c('chr', 'pos', 'seq', 'qual'), nThread=num_proc)
+u <- fread(input, col.names=c('chr', 'pos', 'seq', 'qual'),
+	       nThread=num_proc, showProgress=T)
 
 cat(' >>> Pre-processing ...\n')
-u$seq = pblapply(u$seq, function(x) unlist(strsplit(x, " ", fixed = T)), cl = num_proc)
-u$qual = pblapply(u$qual, function(x) unlist(strsplit(x, " ", fixed = T)), cl = num_proc)
+u$seq = pblapply(u$seq,
+	             function(x) unlist(strsplit(x, " ", fixed = T)),
+	             cl = num_proc)
 u$n = unlist(pblapply(u$seq, length, cl = num_proc))
+u[, qual := NULL]
 
 # Initialize -------------------------------------------------------------------
 
