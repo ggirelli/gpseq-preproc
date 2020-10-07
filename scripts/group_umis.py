@@ -6,7 +6,7 @@ from collections import defaultdict
 import gzip
 import logging
 import sys
-from tqdm import tqdm
+from tqdm import tqdm  # type: ignore
 from typing import DefaultDict, IO, List, Tuple
 
 version = "0.0.1"
@@ -106,4 +106,3 @@ with get_oh(args.output, args.compress_level) as OH:
             OH.write(
                 args.sep.join([chrom, str(pos), " ".join(seq), " ".join(qual)]) + "\n"
             )
-

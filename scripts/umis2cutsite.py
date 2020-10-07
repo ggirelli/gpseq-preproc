@@ -8,7 +8,7 @@ import numpy as np  # type: ignore
 import os
 import pandas as pd  # type: ignore
 import sys
-from tqdm import tqdm
+from tqdm import tqdm  # type: ignore
 
 version = "0.0.1"
 
@@ -249,4 +249,3 @@ if args.do_compress and not args.output.endswith(".gz"):
     args.orphan += ".gz"
 umi_orphan.to_csv(args.orphan, sep="\t", index=False, header=False, compression="infer")
 umi_clean.to_csv(args.output, sep="\t", index=False, header=False, compression="infer")
-
