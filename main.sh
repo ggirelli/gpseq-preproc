@@ -88,7 +88,7 @@ mkdir dedup
 scripts/umi_dedupl.R \
 	atcs/$libid.clean.umis_at_cs.txt.gz \
 	dedup/$libid.clean.umis_dedupd.txt.gz \
-	-c 20 -r 10000
+	-c $threads -r 10000
 
 # Generate final bed
 mkdir bed
