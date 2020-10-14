@@ -55,7 +55,7 @@ for glab in ${glab_list[@]}; do
 	scripts/umi_dedupl.R \
 		$glab/atcs/$libid.clean.umis_at_cs.txt.gz \
 		$glab/dedup/$libid.clean.umis_dedupd.txt.gz \
-		-c 20 -r 10000
+		-c $threads -r 10000
 
 	# Generate final bed
 	mkdir $glab/bed
