@@ -1,9 +1,9 @@
-libid_list=("TK300")
-libid_list+=("TK301")
-libid_list+=("TK302")
-libid_list+=("TK303")
-libid_list+=("TK304")
-libid_list+=("TK305")
+libid_list=("TK270")
+libid_list+=("TK271")
+libid_list+=("TK272")
+libid_list+=("TK273")
+libid_list+=("TK274")
+libid_list+=("TK275")
 
 snp_file="/mnt/data/Sequencing/EMBL_Mouse_chimera_SNP/SNPs/C57BL-6J_CAST-EiJ.txt.gz"
 
@@ -28,7 +28,8 @@ for libid in ${libid_list[@]}; do
 		convert2bed --input=sam --keep-header - > genome12/atcs/$libid.clean.revs.bed
 	cut -f 1-4 genome12/atcs/$libid.clean.revs.bed | tr "~" $'\t' | cut -f 1,3,7,16 | gzip \
 		> genome12/atcs/$libid.clean.revs.umi.txt.gz
-	rm genome12/atcs/$libid.clean.revs.bam genome12/atcs/$libid.clean.revs.bed
+	rm genome12/atcs/$libid.clean.revs.bam genome12/atcs/$libid.clean.revs.bam.bai
+	rm genome12/atcs/$libid.clean.revs.bed
 
 	sambamba view -q -t $threads -h -f bam -F "not reverse_strand" \
 		genome12/mapping/$libid.bam -o genome12/atcs/$libid.clean.plus.bam
@@ -36,7 +37,8 @@ for libid in ${libid_list[@]}; do
 		convert2bed --input=sam --keep-header - > genome12/atcs/$libid.clean.plus.bed
 	cut -f 1-4 genome12/atcs/$libid.clean.plus.bed | tr "~" $'\t' | cut -f 1,2,7,16 | gzip \
 		> genome12/atcs/$libid.clean.plus.umi.txt.gz
-	rm genome12/atcs/$libid.clean.plus.bam genome12/atcs/$libid.clean.plus.bed
+	rm genome12/atcs/$libid.clean.plus.bam genome12/atcs/$libid.clean.plus.bam.bai
+	rm genome12/atcs/$libid.clean.plus.bed
 
 	# Group UMIs
 	scripts/group_umis.py \
