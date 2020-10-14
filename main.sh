@@ -38,32 +38,32 @@ bowtie2 \
 	-S mapping/$libid.sam &> mapping/$libid.mapping.log
 
 # Filter alignment
-sambamba view -S mapping/$libid.sam -f bam -t $threads > mapping/$libid.bam
+sambamba view -q -S mapping/$libid.sam -f bam -t $threads > mapping/$libid.bam
 rm -i mapping/$libid.sam
-sambamba view mapping/$libid.bam -f bam \
+sambamba view -q mapping/$libid.bam -f bam \
 	-F "mapping_quality<30" -c -t $threads \
 	> mapping/$libid.lq_count.txt
-sambamba view mapping/$libid.bam -f bam \
+sambamba view -q mapping/$libid.bam -f bam \
 	-F "ref_name=='chrM'" -c -t $threads \
 	> mapping/$libid.chrM.txt
-sambamba view mapping/$libid.bam -f bam -t $threads \
+sambamba view -q mapping/$libid.bam -f bam -t $threads \
 	-F "mapping_quality>=30 and not secondary_alignment and not unmapped and not chimeric and ref_name!='chrM'" \
 	> mapping/$libid.clean.bam
-sambamba view mapping/$libid.clean.bam -f bam -c -t $threads > mapping/$libid.clean_count.txt
+sambamba view -q mapping/$libid.clean.bam -f bam -c -t $threads > mapping/$libid.clean_count.txt
 
 # Correct aligned position
 mkdir atcs
-sambamba view -t $threads -h -f bam -F "reverse_strand" \
+sambamba view -q -t $threads -h -f bam -F "reverse_strand" \
 	mapping/$libid.clean.bam -o atcs/$libid.clean.revs.bam
-sambamba view -t $threads atcs/$libid.clean.revs.bam | \
+sambamba view -q -t $threads atcs/$libid.clean.revs.bam | \
 	convert2bed --input=sam --keep-header - > atcs/$libid.clean.revs.bed
 cut -f 1-4 atcs/$libid.clean.revs.bed | tr "~" $'\t' | cut -f 1,3,7,16 | gzip \
 	> atcs/$libid.clean.revs.umi.txt.gz
 rm atcs/$libid.clean.revs.bam atcs/$libid.clean.revs.bed
 
-sambamba view -t $threads -h -f bam -F "not reverse_strand" \
+sambamba view -q -t $threads -h -f bam -F "not reverse_strand" \
 	mapping/$libid.clean.bam -o atcs/$libid.clean.plus.bam
-sambamba view -t $threads atcs/$libid.clean.plus.bam | \
+sambamba view -q -t $threads atcs/$libid.clean.plus.bam | \
 	convert2bed --input=sam --keep-header - > atcs/$libid.clean.plus.bed
 cut -f 1-4 atcs/$libid.clean.plus.bed | tr "~" $'\t' | cut -f 1,2,7,16 | gzip \
 	> atcs/$libid.clean.plus.umi.txt.gz

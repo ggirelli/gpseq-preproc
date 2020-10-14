@@ -19,17 +19,17 @@ glab_list+=("genome2")
 for glab in ${glab_list[@]}; do
 	# Correct aligned position
 	mkdir $glab/atcs
-	sambamba view -t $threads -h -f bam -F "reverse_strand" \
+	sambamba view -q -t $threads -h -f bam -F "reverse_strand" \
 		$glab/mapping/$libid.bam -o $glab/atcs/$libid.clean.revs.bam
-	sambamba view -t $threads $glab/atcs/$libid.clean.revs.bam | \
+	sambamba view -q -t $threads $glab/atcs/$libid.clean.revs.bam | \
 		convert2bed --input=sam --keep-header - > $glab/atcs/$libid.clean.revs.bed
 	cut -f 1-4 $glab/atcs/$libid.clean.revs.bed | tr "~" $'\t' | cut -f 1,3,7,16 | gzip \
 		> $glab/atcs/$libid.clean.revs.umi.txt.gz
 	rm $glab/atcs/$libid.clean.revs.bam $glab/atcs/$libid.clean.revs.bed
 
-	sambamba view -t $threads -h -f bam -F "not reverse_strand" \
+	sambamba view -q -t $threads -h -f bam -F "not reverse_strand" \
 		$glab/mapping/$libid.bam -o $glab/atcs/$libid.clean.plus.bam
-	sambamba view -t $threads $glab/atcs/$libid.clean.plus.bam | \
+	sambamba view -q -t $threads $glab/atcs/$libid.clean.plus.bam | \
 		convert2bed --input=sam --keep-header - > $glab/atcs/$libid.clean.plus.bed
 	cut -f 1-4 $glab/atcs/$libid.clean.plus.bed | tr "~" $'\t' | cut -f 1,2,7,16 | gzip \
 		> $glab/atcs/$libid.clean.plus.umi.txt.gz
