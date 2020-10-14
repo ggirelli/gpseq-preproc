@@ -1,5 +1,5 @@
-input="fastq/TK305_S6_LALL_R1_001.fastq.gz"
-libid="TK305"
+input="fastq/TK306_S1_LALL_R1_001.fastq.gz"
+libid="TK306"
 
 bowtie2_ref="/mnt/data/Sequencing/EMBL_Mouse_chimera_SNP/SNP_masked_ref/C57BL-6NJ_CAST-EiJ_Nmask.bowtie2"
 cutsite_path="/mnt/data/Resources/mm10.r68/recognition_sites/mm10.r68.MboI.bed.gz"
@@ -7,11 +7,11 @@ cutsite_path="/mnt/data/Resources/mm10.r68/recognition_sites/mm10.r68.MboI.bed.g
 threads=10
 
 # FASTQ quality control
-mkdir fastqc
+mkdir -p fastqc
 fastqc $input -o fastqc --nogroup
 
 # Extract flags and filter by UMI quality
-mkdir fastq_hq
+mkdir -p fastq_hq
 fbarber flag extract \
 	"$input" fastq_hq/$libid.hq.fastq.gz \
 	--filter-qual-output fastq_hq/$libid.lq.fastq.gz \
@@ -22,7 +22,7 @@ fbarber flag extract \
 	--threads $threads --chunk-size 200000
 
 # Filter by prefix
-mkdir fastq_prefix
+mkdir -p fastq_prefix
 fbarber flag regex \
 	fastq_hq/$libid.hq.fastq.gz fastq_prefix/$libid.fastq.gz \
 	--unmatched-output fastq_prefix/$libid.unmatched.fastq.gz \
@@ -31,7 +31,7 @@ fbarber flag regex \
 	--threads $threads --chunk-size 200000
 
 # Align
-mkdir mapping
+mkdir -p mapping
 bowtie2 \
 	-x "$bowtie2_ref" fastq_prefix/$libid.fastq.gz \
 	--very-sensitive -L 20 --score-min L,-0.6,-0.2 --end-to-end --reorder -p $threads \
@@ -52,7 +52,7 @@ sambamba view -q mapping/$libid.bam -f bam -t $threads \
 sambamba view -q mapping/$libid.clean.bam -f bam -c -t $threads > mapping/$libid.clean_count.txt
 
 # Correct aligned position
-mkdir atcs
+mkdir -p atcs
 sambamba view -q -t $threads -h -f bam -F "reverse_strand" \
 	mapping/$libid.clean.bam -o atcs/$libid.clean.revs.bam
 sambamba view -q -t $threads atcs/$libid.clean.revs.bam | \
@@ -84,14 +84,14 @@ scripts/umis2cutsite.py \
 rm atcs/$libid.clean.umis.txt.gz
 
 # Deduplicate
-mkdir dedup
+mkdir -p dedup
 scripts/umi_dedupl.R \
 	atcs/$libid.clean.umis_at_cs.txt.gz \
 	dedup/$libid.clean.umis_dedupd.txt.gz \
 	-c 20 -r 10000
 
 # Generate final bed
-mkdir bed
+mkdir -p bed
 zcat dedup/$libid.clean.umis_dedupd.txt.gz | \
 	awk 'BEGIN{FS=OFS="\t"}{print $1 FS $2 FS $2 FS "pos_"NR FS $4}' | \
 	gzip > bed/$libid.bed.gz
