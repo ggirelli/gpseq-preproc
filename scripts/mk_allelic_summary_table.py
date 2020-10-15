@@ -100,20 +100,20 @@ def parse_deduped(
             if match is None:
                 continue
             matched = True
-            dataframe.loc[library_iid, "{prefix}uniq"] = int(match.groups()[0])
+            dataframe.loc[library_iid, f"{prefix}uniq"] = int(match.groups()[0])
         assert matched, f"missing deduplication count line [{library_id}]: '{log_path}'"
         deduped_perc = (
-            dataframe.loc[library_iid, "{prefix}uniq"]
-            / dataframe.loc[library_iid, "{prefix}fromCS"]
+            dataframe.loc[library_iid, f"{prefix}uniq"]
+            / dataframe.loc[library_iid, f"{prefix}fromCS"]
             * 100
         )
-        dataframe.loc[library_iid, "{prefix}uniq%"] = f"{deduped_perc:.2f}%"
+        dataframe.loc[library_iid, f"{prefix}uniq%"] = f"{deduped_perc:.2f}%"
         output_perc = (
-            dataframe.loc[library_iid, "{prefix}uniq"]
+            dataframe.loc[library_iid, f"{prefix}uniq"]
             / dataframe.loc[library_iid, input_col]
             * 100
         )
-        dataframe.loc[library_iid, "{prefix}out%"] = f"{output_perc:.2f}%"
+        dataframe.loc[library_iid, f"{prefix}out%"] = f"{output_perc:.2f}%"
     return dataframe
 
 
