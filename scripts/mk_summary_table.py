@@ -187,7 +187,7 @@ for library_iid in range(len(library_id_list)):
         assert matched, f"missing deduplication count line [{library_id}]"
         deduped_perc = (
             dataframe.loc[library_iid, "uniq"]
-            / dataframe.loc[library_iid, "from_CS"]
+            / dataframe.loc[library_iid, "fromCS"]
             * 100
         )
         dataframe.loc[library_iid, "uniq%"] = f"{deduped_perc:.2f}%"
