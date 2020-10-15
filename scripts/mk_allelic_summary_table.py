@@ -9,6 +9,7 @@ import numpy as np  # type: ignore
 import pandas as pd  # type: ignore
 import regex as re  # type: ignore
 from rich.logging import RichHandler  # type: ignore
+from rich.progress import track  # type: ignore
 import sys
 from typing import Dict
 
@@ -54,6 +55,64 @@ patterns["SNPsplit_weird"] = (
 patterns[
     "SNPsplit_conflict"
 ] = "^([0-9]+) contained conflicting allele-specific SNPs \(([0-9]+\.[0-9]+%)\)"
+patterns["fromCS"] = "Output: ([0-9]+) \(([0-9\.]+%)\) UMI sequences over "
+patterns["dedup"] = "([0-9]+) UMIs left after deduplication."
+
+
+def parse_fromCS(
+    log_path: str,
+    dataframe: pd.DataFrame,
+    prefix: str,
+    library_iid: int,
+    library_id: str,
+) -> pd.DataFrame:
+    if not prefix.endswith("_"):
+        prefix += "_"
+    assert os.path.isfile(log_path), f"file not found: '{log_path}'"
+    with open(log_path) as LH:
+        matched = False
+        for line in LH:
+            match = re.match(patterns["fromCS"], line)
+            if match is None:
+                continue
+            matched = True
+            dataframe.loc[library_iid, f"{prefix}fromCS"] = int(match.groups()[0])
+            dataframe.loc[library_iid, f"{prefix}fromCS%"] = match.groups()[1]
+        assert matched, f"missing fromCS count line [{library_id}]"
+    return dataframe
+
+
+def parse_deduped(
+    log_path: str,
+    dataframe: pd.DataFrame,
+    prefix: str,
+    library_iid: int,
+    library_id: str,
+) -> pd.DataFrame:
+    assert os.path.isfile(log_path), f"file not found: '{log_path}'"
+    with open(log_path) as LH:
+        matched = False
+        for line in LH:
+            match = re.match(patterns["dedup"], line)
+            if match is None:
+                continue
+            matched = True
+            dataframe.loc[library_iid, "uniq"] = int(match.groups()[0])
+        assert matched, f"missing deduplication count line [{library_id}]"
+        deduped_perc = (
+            dataframe.loc[library_iid, "uniq"]
+            / dataframe.loc[library_iid, "non_orphan"]
+            * 100
+        )
+        dataframe.loc[library_iid, "uniq%"] = f"{deduped_perc:.2f}%"
+        output_perc = (
+            dataframe.loc[library_iid, "uniq"]
+            / dataframe.loc[library_iid, "input"]
+            * 100
+        )
+        dataframe.loc[library_iid, "output%"] = f"{output_perc:.2f}%"
+    return dataframe
+
 
 dataframe = pd.DataFrame()
 
@@ -165,6 +224,42 @@ for library_iid in range(len(library_id_list)):
             dataframe.loc[library_iid, "conflict%"] = match.groups()[1]
         assert matched, f"missing conflicting count line [{library_id}]"
 
+for genome_iid in track([1, 2]):
+    logging.info(f"Reading genome {genome_iid} fromCS counts...")
+    for library_iid in range(len(library_id_list)):
+        library_id = library_id_list[library_iid]
+        dataframe = parse_fromCS(
+            os.path.join(
+                args.root,
+                "genome{genome_iid}",
+                "atcs",
+                f"{library_id}.clean.umis_at_cs.txt.log",
+            ),
+            dataframe,
+            "g{genome_iid}",
+            library_iid,
+            library_id,
+        )
+    logging.info("Reading deduplicated counts...")
+    for library_iid in range(len(library_id_list)):
+        library_id = library_id_list[library_iid]
+        log_path = os.path.join(
+            args.root,
+            "dedup",
+            f"{library_id}.clean.umis_at_cs.txt.gz.umi_prep_notes.txt",
+        )
+        dataframe = parse_deduped(
+            os.path.join(
+                args.root,
+                "genome{genome_iid}",
+                "atcs",
+                f"{library_id}.clean.umis_at_cs.txt.log",
+            ),
+            dataframe,
+            "g{genome_iid}",
+            library_iid,
+            library_id,
+        )
 
 dataframe.sort_values("library_id").to_csv(
     os.path.join(args.root, "summary_table-allelic.tsv"), sep="\t", index=False
