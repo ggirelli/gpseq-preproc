@@ -66,5 +66,5 @@ for libid in ${libid_list[@]}; do
 	mkdir genome12/bed
 	zcat genome12/dedup/$libid.clean.umis_dedupd.txt.gz | \
 		awk 'BEGIN{FS=OFS="\t"}{print $1 FS $2 FS $2 FS "pos_"NR FS $4}' | \
-		gzip > genome12/bed/$libid.bed.gz
+		gzip > genome12/bed/$libid.genome12.bed.gz
 done

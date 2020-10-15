@@ -61,5 +61,5 @@ for glab in ${glab_list[@]}; do
 	mkdir $glab/bed
 	zcat $glab/dedup/$libid.clean.umis_dedupd.txt.gz | \
 		awk 'BEGIN{FS=OFS="\t"}{print $1 FS $2 FS $2 FS "pos_"NR FS $4}' | \
-		gzip > $glab/bed/$libid.bed.gz
+		gzip > $glab/bed/$libid.$glab.bed.gz
 done
