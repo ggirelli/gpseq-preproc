@@ -88,7 +88,10 @@ def parse_deduped(
     prefix: str,
     library_iid: int,
     library_id: str,
+    input_col: str
 ) -> pd.DataFrame:
+    if not prefix.endswith("_"):
+        prefix += "_"
     assert os.path.isfile(log_path), f"file not found: '{log_path}'"
     with open(log_path) as LH:
         matched = False
@@ -97,20 +100,20 @@ def parse_deduped(
             if match is None:
                 continue
             matched = True
-            dataframe.loc[library_iid, "uniq"] = int(match.groups()[0])
+            dataframe.loc[library_iid, "{prefix}uniq"] = int(match.groups()[0])
         assert matched, f"missing deduplication count line [{library_id}]: '{log_path}'"
         deduped_perc = (
-            dataframe.loc[library_iid, "uniq"]
-            / dataframe.loc[library_iid, "non_orphan"]
+            dataframe.loc[library_iid, "{prefix}uniq"]
+            / dataframe.loc[library_iid, "{prefix}fromCS"]
             * 100
         )
-        dataframe.loc[library_iid, "uniq%"] = f"{deduped_perc:.2f}%"
+        dataframe.loc[library_iid, "{prefix}uniq%"] = f"{deduped_perc:.2f}%"
         output_perc = (
-            dataframe.loc[library_iid, "uniq"]
-            / dataframe.loc[library_iid, "input"]
+            dataframe.loc[library_iid, "{prefix}uniq"]
+            / dataframe.loc[library_iid, input_col]
             * 100
         )
-        dataframe.loc[library_iid, "output%"] = f"{output_perc:.2f}%"
+        dataframe.loc[library_iid, "{prefix}out%"] = f"{output_perc:.2f}%"
     return dataframe
 
 
@@ -254,6 +257,7 @@ for genome_iid in track([1, 2]):
             f"g{genome_iid}",
             library_iid,
             library_id,
+            f"genome{genome_iid}"
         )
 
 dataframe.sort_values("library_id").to_csv(
