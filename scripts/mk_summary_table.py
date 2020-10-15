@@ -45,7 +45,7 @@ patterns[
 ] = ".* ([0-9]+)/([0-9]+) \(([0-9\.%]+)\).*flag_regex\.py:159"
 patterns["mapping_unmapped"] = ".* ([0-9]+) \([0-9\.]+%\) aligned 0 times"
 patterns["mapping_2nd_aln"] = ".* ([0-9]+) \([0-9\.]+%\) aligned >1 times"
-patterns["non_orphan"] = "Output: ([0-9]+) \(([0-9\.]+%)\) UMI sequences over "
+patterns["fromCS"] = "Output: ([0-9]+) \(([0-9\.]+%)\) UMI sequences over "
 patterns["dedup"] = "([0-9]+) UMIs left after deduplication."
 
 dataframe = pd.DataFrame()
@@ -92,7 +92,6 @@ for library_iid in range(len(library_id_list)):
             dataframe.loc[library_iid, "prefix"] = int(match.groups()[0])
             dataframe.loc[library_iid, "prefix%"] = match.groups()[2]
         assert matched, f"missing prefix output line [{library_id}]"
-
 
 logging.info("Reading unmapped counts...")
 for library_iid in range(len(library_id_list)):
@@ -162,12 +161,12 @@ for library_iid in range(len(library_id_list)):
     with open(log_path) as LH:
         matched = False
         for line in LH:
-            match = re.match(patterns["non_orphan"], line)
+            match = re.match(patterns["fromCS"], line)
             if match is None:
                 continue
             matched = True
-            dataframe.loc[library_iid, "non_orphan"] = int(match.groups()[0])
-            dataframe.loc[library_iid, "non_orphan%"] = match.groups()[1]
+            dataframe.loc[library_iid, "fromCS"] = int(match.groups()[0])
+            dataframe.loc[library_iid, "fromCS%"] = match.groups()[1]
         assert matched, f"missing non orphan count line [{library_id}]"
 
 logging.info("Reading deduplicated counts...")
@@ -188,7 +187,7 @@ for library_iid in range(len(library_id_list)):
         assert matched, f"missing deduplication count line [{library_id}]"
         deduped_perc = (
             dataframe.loc[library_iid, "uniq"]
-            / dataframe.loc[library_iid, "non_orphan"]
+            / dataframe.loc[library_iid, "from_CS"]
             * 100
         )
         dataframe.loc[library_iid, "uniq%"] = f"{deduped_perc:.2f}%"
@@ -197,7 +196,7 @@ for library_iid in range(len(library_id_list)):
             / dataframe.loc[library_iid, "input"]
             * 100
         )
-        dataframe.loc[library_iid, "output%"] = f"{output_perc:.2f}%"
+        dataframe.loc[library_iid, "out%"] = f"{output_perc:.2f}%"
 
 
 dataframe.sort_values("library_id").to_csv(
