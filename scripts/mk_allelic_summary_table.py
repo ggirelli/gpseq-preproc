@@ -88,7 +88,7 @@ def parse_deduped(
     prefix: str,
     library_iid: int,
     library_id: str,
-    input_col: str
+    input_col: str,
 ) -> pd.DataFrame:
     if not prefix.endswith("_"):
         prefix += "_"
@@ -243,7 +243,7 @@ for genome_iid in track([1, 2]):
             library_iid,
             library_id,
         )
-    logging.info("Reading deduplicated counts...")
+    logging.info(f"Reading {genome_iid} deduplicated counts...")
     for library_iid in range(len(library_id_list)):
         library_id = library_id_list[library_iid]
         dataframe = parse_deduped(
@@ -257,8 +257,65 @@ for genome_iid in track([1, 2]):
             f"g{genome_iid}",
             library_iid,
             library_id,
-            f"genome{genome_iid}"
+            f"genome{genome_iid}",
         )
+
+
+logging.info("Reading genome 1+2 fromCS counts...")
+for library_iid in range(len(library_id_list)):
+    library_id = library_id_list[library_iid]
+    log_path = os.path.join(
+        args.root,
+        "genome12",
+        "atcs",
+        f"{library_id}.clean.umis_at_cs.txt.log",
+    )
+    assert os.path.isfile(log_path), f"file not found: '{log_path}'"
+    with open(log_path) as LH:
+        matched = False
+        for line in LH:
+            match = re.match(patterns["fromCS"], line)
+            if match is None:
+                continue
+            matched = True
+            dataframe.loc[library_iid, "m_fromCS"] = int(match.groups()[0])
+            dataframe.loc[library_iid, "m_fromCS%"] = match.groups()[1]
+        assert matched, f"missing fromCS count line [{library_id}]: '{log_path}'"
+
+logging.info("Reading genome 1+2 deduplicated counts...")
+for library_iid in range(len(library_id_list)):
+    library_id = library_id_list[library_iid]
+    log_path = os.path.join(
+        args.root,
+        "genome12",
+        "dedup",
+        f"{library_id}.clean.umis_at_cs.txt.gz.umi_prep_notes.txt",
+    )
+    assert os.path.isfile(log_path), f"file not found: '{log_path}'"
+    with open(log_path) as LH:
+        matched = False
+        for line in LH:
+            match = re.match(patterns["dedup"], line)
+            if match is None:
+                continue
+            matched = True
+            dataframe.loc[library_iid, "m_uniq"] = int(match.groups()[0])
+        assert matched, f"missing deduplication count line [{library_id}]: '{log_path}'"
+        deduped_perc = (
+            dataframe.loc[library_iid, "m_uniq"]
+            / dataframe.loc[library_iid, "m_fromCS"]
+            * 100
+        )
+        dataframe.loc[library_iid, "m_uniq%"] = f"{deduped_perc:.2f}%"
+        output_perc = (
+            dataframe.loc[library_iid, "m_uniq"]
+            / (
+                dataframe.loc[library_iid, "genome1"]
+                + dataframe.loc[library_iid, "genome2"]
+            )
+            * 100
+        )
+        dataframe.loc[library_iid, "m_out%"] = f"{output_perc:.2f}%"
 
 dataframe.sort_values("library_id").to_csv(
     os.path.join(args.root, "summary_table-allelic.tsv"), sep="\t", index=False
