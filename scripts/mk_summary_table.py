@@ -131,7 +131,6 @@ for library_iid in range(len(library_id_list)):
     assert os.path.isfile(log_path)
     with open(log_path) as LH:
         dataframe.loc[library_iid, "chrM"] = int(LH.readlines()[0].strip())
-        assert matched, f"missing chrM alignment count line [{library_id}]"
 
 logging.info("Reading low quality alignment counts...")
 for library_iid in range(len(library_id_list)):
@@ -140,7 +139,6 @@ for library_iid in range(len(library_id_list)):
     assert os.path.isfile(log_path)
     with open(log_path) as LH:
         dataframe.loc[library_iid, "low_mapq"] = int(LH.readlines()[0].strip())
-        assert matched, f"missing low quality alignment count line [{library_id}]"
 
 logging.info("Reading filtered alignment counts...")
 for library_iid in range(len(library_id_list)):
@@ -155,7 +153,6 @@ for library_iid in range(len(library_id_list)):
             * 100
         )
         dataframe.loc[library_iid, "mapped%"] = f"{mapped_perc:.2f}%"
-        assert matched, f"missing filtered alignment count line [{library_id}]"
 
 logging.info("Reading non orphan counts...")
 for library_iid in range(len(library_id_list)):
