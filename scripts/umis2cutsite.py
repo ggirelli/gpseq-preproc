@@ -7,6 +7,8 @@ import logging
 import numpy as np  # type: ignore
 import os
 import pandas as pd  # type: ignore
+from rich.console import Console  # type: ignore
+from rich.logging import RichHandler  # type: ignore
 import sys
 from tqdm import tqdm  # type: ignore
 
@@ -15,14 +17,8 @@ version = "0.0.1"
 
 logging.basicConfig(
     level=logging.INFO,
-    format="".join(
-        (
-            "%(asctime)s ",
-            "[P%(process)s:%(module)s] ",
-            "%(levelname)s: %(message)s",
-        )
-    ),
-    datefmt="%m/%d/%Y %I:%M:%S",
+    format="%(message)s",
+    handlers=[RichHandler(markup=True, rich_tracebacks=True)],
 )
 
 parser = argparse.ArgumentParser(
@@ -64,13 +60,6 @@ parser.add_argument(
 )
 
 args = parser.parse_args()
-
-
-def printout(s, LH):
-    print(s)
-    if not s.endswith("\n"):
-        s += "\n"
-    LH.write(s)
 
 
 def run_single_chrom(chrom_umi, chrom_rss):
@@ -149,12 +138,18 @@ args.log = os.path.join(
     f"{os.path.splitext(os.path.basename(args.output))[0]}.log",
 )
 
-LH = open(args.log, "a+")
+assert not os.path.isdir(args.log)
+log_dir = os.path.dirname(args.log)
+assert os.path.isdir(log_dir) or "" == log_dir
+fh = RichHandler(console=Console(file=open(args.log, mode="w+")), markup=True)
+fh.setLevel(logging.INFO)
+logging.getLogger().addHandler(fh)
+logging.info(f"[green]Log to[/]\t\t{args.log}")
 
-printout("Reading RSs", LH)
+logging.info("Reading RSs")
 rss = pd.read_csv(args.cutsites, "\t", names=["chrom", "start", "end", "name"])
 
-printout("Reading UMIs", LH)
+logging.info("Reading UMIs")
 umi = pd.read_csv(
     args.umis,
     sep="\t",
@@ -164,17 +159,17 @@ umi = pd.read_csv(
 
 chrom_list = sorted(set(umi["chrom"].values))
 rss_chrom_list = sorted(set(rss["chrom"].values))
-printout(f"Found {len(chrom_list)} chromosomes", LH)
+logging.info(f"Found {len(chrom_list)} chromosomes")
 
 chrom_list_clean = []
 for chrom_sel in chrom_list:
     if chrom_sel not in rss_chrom_list:
-        printout(f"Skipping {chrom_sel} (missing from RSs data)", LH)
+        logging.info(f"Skipping {chrom_sel} (missing from RSs data)")
         continue
     else:
         chrom_list_clean.append(chrom_sel)
 
-printout("Assigning UMIs to RSs", LH)
+logging.info("Assigning UMIs to RSs")
 pd_list = Parallel(n_jobs=args.threads, verbose=11)(
     delayed(run_single_chrom)(
         umi.loc[umi["chrom"] == chrom_sel, :].copy(),
@@ -184,7 +179,7 @@ pd_list = Parallel(n_jobs=args.threads, verbose=11)(
 )
 umi_final = pd.concat(pd_list)
 
-printout("Counting UMIs per RS", LH)
+logging.info("Counting UMIs per RS")
 n = []
 for seqs in tqdm(umi_final["seq"].values, desc="UMIs"):
     n.append(len(seqs.split(" ")))
@@ -192,23 +187,22 @@ umi_final["n"] = n
 
 n_pos = umi_final.shape[0]
 n_umis = umi_final["n"].sum()
-printout(f"Input: {n_umis} UMI sequences over {n_pos} locations", LH)
-printout(f"Distance from RS, summary", LH)
-printout(f"     min: {np.min(umi_final['d_rs'])}", LH)
-printout(f"    mean: {np.mean(umi_final['d_rs'])}", LH)
-printout(f"     max: {np.max(umi_final['d_rs'])}", LH)
+logging.info(f"Input: {n_umis} UMI sequences over {n_pos} locations")
+logging.info(f"Distance from RS, summary")
+logging.info(f"     min: {np.min(umi_final['d_rs'])}")
+logging.info(f"    mean: {np.mean(umi_final['d_rs'])}")
+logging.info(f"     max: {np.max(umi_final['d_rs'])}")
 
-printout("Cleaning", LH)
+logging.info("Cleaning")
 umi_orphan = umi_final.loc[umi_final["d_rs"] > args.min_dist, :].copy()
 umi_clean = umi_final.loc[umi_final["d_rs"] <= args.min_dist, :].copy()
 n_clean_pos = umi_clean.shape[0]
 n_clean_umis = umi_clean["n"].sum()
-printout(
+logging.info(
     (
         f"Intermediate: {n_clean_umis} ({n_clean_umis/n_umis*100:.2f}%) UMI"
         + f" sequences over {n_clean_pos} ({n_clean_pos/n_pos*100:.2f}%) locations"
-    ),
-    LH,
+    )
 )
 
 umi_orphan.drop(["pos", "d_rs"], axis=1, inplace=True)
@@ -220,7 +214,7 @@ umi_clean.drop(["pos", "d_rs"], axis=1, inplace=True)
 umi_clean.rename({"rs_pos": "pos", "chrom": "chr"}, axis=1, inplace=True)
 umi_clean = umi_clean.reindex(["chr", "pos", "seq", "qual", "n"], axis=1)
 umi_clean.sort_values(["chr", "pos"], inplace=True)
-printout("Merging UMIs assigned to the same RS", LH)
+logging.info("Merging UMIs assigned to the same RS")
 chrom_list = sorted(set(umi_clean["chr"].values))
 umi_clean = pd.concat(
     Parallel(n_jobs=args.threads, verbose=11)(
@@ -233,12 +227,11 @@ umi_clean = pd.concat(
 
 n_clean_pos = umi_clean.shape[0]
 n_clean_umis = umi_clean["n"].sum()
-printout(
+logging.info(
     (
         f"Output: {n_clean_umis} ({n_clean_umis/n_umis*100:.2f}%) UMI"
         + f" sequences over {n_clean_pos} ({n_clean_pos/n_pos*100:.2f}%) locations"
-    ),
-    LH,
+    )
 )
 
 umi_orphan.drop(["n"], axis=1, inplace=True)
@@ -247,5 +240,6 @@ umi_clean.drop("n", axis=1, inplace=True)
 if args.do_compress and not args.output.endswith(".gz"):
     args.output += ".gz"
     args.orphan += ".gz"
+logging.info("Writing output")
 umi_orphan.to_csv(args.orphan, sep="\t", index=False, header=False, compression="infer")
 umi_clean.to_csv(args.output, sep="\t", index=False, header=False, compression="infer")
