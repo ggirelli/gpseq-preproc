@@ -243,17 +243,12 @@ for genome_iid in track([1, 2]):
     logging.info("Reading deduplicated counts...")
     for library_iid in range(len(library_id_list)):
         library_id = library_id_list[library_iid]
-        log_path = os.path.join(
-            args.root,
-            "dedup",
-            f"{library_id}.clean.umis_at_cs.txt.gz.umi_prep_notes.txt",
-        )
         dataframe = parse_deduped(
             os.path.join(
                 args.root,
                 f"genome{genome_iid}",
-                "atcs",
-                f"{library_id}.clean.umis_at_cs.txt.log",
+                "dedup",
+                f"{library_id}clean.umis_at_cs.txt.gz.umi_prep_notes.txt",
             ),
             dataframe,
             f"g{genome_iid}",
