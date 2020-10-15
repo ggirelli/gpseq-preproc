@@ -248,7 +248,7 @@ for genome_iid in track([1, 2]):
                 args.root,
                 f"genome{genome_iid}",
                 "dedup",
-                f"{library_id}clean.umis_at_cs.txt.gz.umi_prep_notes.txt",
+                f"{library_id}.clean.umis_at_cs.txt.gz.umi_prep_notes.txt",
             ),
             dataframe,
             f"g{genome_iid}",
