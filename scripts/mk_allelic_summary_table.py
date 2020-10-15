@@ -78,7 +78,7 @@ def parse_fromCS(
             matched = True
             dataframe.loc[library_iid, f"{prefix}fromCS"] = int(match.groups()[0])
             dataframe.loc[library_iid, f"{prefix}fromCS%"] = match.groups()[1]
-        assert matched, f"missing fromCS count line [{library_id}]"
+        assert matched, f"missing fromCS count line [{library_id}]: '{log_path}'"
     return dataframe
 
 
@@ -98,7 +98,7 @@ def parse_deduped(
                 continue
             matched = True
             dataframe.loc[library_iid, "uniq"] = int(match.groups()[0])
-        assert matched, f"missing deduplication count line [{library_id}]"
+        assert matched, f"missing deduplication count line [{library_id}]: '{log_path}'"
         deduped_perc = (
             dataframe.loc[library_iid, "uniq"]
             / dataframe.loc[library_iid, "non_orphan"]
