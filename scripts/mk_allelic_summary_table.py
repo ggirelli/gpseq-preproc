@@ -231,12 +231,12 @@ for genome_iid in track([1, 2]):
         dataframe = parse_fromCS(
             os.path.join(
                 args.root,
-                "genome{genome_iid}",
+                f"genome{genome_iid}",
                 "atcs",
                 f"{library_id}.clean.umis_at_cs.txt.log",
             ),
             dataframe,
-            "g{genome_iid}",
+            f"g{genome_iid}",
             library_iid,
             library_id,
         )
@@ -251,12 +251,12 @@ for genome_iid in track([1, 2]):
         dataframe = parse_deduped(
             os.path.join(
                 args.root,
-                "genome{genome_iid}",
+                f"genome{genome_iid}",
                 "atcs",
                 f"{library_id}.clean.umis_at_cs.txt.log",
             ),
             dataframe,
-            "g{genome_iid}",
+            f"g{genome_iid}",
             library_iid,
             library_id,
         )
