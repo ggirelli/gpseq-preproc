@@ -55,7 +55,7 @@ patterns["SNPsplit_weird"] = (
 patterns[
     "SNPsplit_conflict"
 ] = "^([0-9]+) contained conflicting allele-specific SNPs \(([0-9]+\.[0-9]+%)\)"
-patterns["fromCS"] = "Output: ([0-9]+) \(([0-9\.]+%)\) UMI sequences over "
+patterns["fromCS"] = ".*?Output: ([0-9]+) \(([0-9\.]+%)\) UMI sequences over "
 patterns["dedup"] = "([0-9]+) UMIs left after deduplication."
 
 
