@@ -6,21 +6,6 @@ cutsite_path="/mnt/data/Resources/mm10.r68/recognition_sites/mm10.r68.MboI.bed.g
 
 threads=10
 
-# FASTQ quality control
-mkdir -p fastqc
-fastqc $input -o fastqc --nogroup
-
-# Extract flags and filter by UMI quality
-mkdir -p fastq_hq
-fbarber flag extract \
-	"$input" fastq_hq/$libid.hq.fastq.gz \
-	--filter-qual-output fastq_hq/$libid.lq.fastq.gz \
-	--unmatched-output fastq_hq/$libid.unmatched.fastq.gz \
-	--log-file fastq_hq/$libid.log \
-	--pattern '^(?<umi>.{8})(?<bc>.{8})(?<cs>.{4})' \
-	--flagstats bc cs --filter-qual-flags umi,30,.2 \
-	--threads $threads --chunk-size 200000
-
 # Filter by prefix
 mkdir -p fastq_prefix
 fbarber flag regex \
