@@ -2,7 +2,6 @@ input="fastq/TK306_S1_LALL_R1_001.fastq.gz"
 libid="TK306"
 
 bowtie2_ref="/mnt/data/Sequencing/EMBL_Mouse_chimera_SNP/SNP_masked_ref/C57BL-6NJ_CAST-EiJ_Nmask.bowtie2"
-cutsite_path="/mnt/data/Resources/mm10.r68/recognition_sites/mm10.r68.MboI.bed.gz"
 
 threads=10
 
@@ -61,6 +60,9 @@ scripts/group_umis.py \
 	atcs/$libid.clean.umis.txt.gz \
 	--compress-level 6 --len 4
 rm atcs/$libid.clean.plus.umi.txt.gz atcs/$libid.clean.revs.umi.txt.gz
+
+
+cutsite_path="/mnt/data/Sequencing/EMBL_Mouse_chimera_SNP/C57BL-6NJ_CAST-EiJ_genome12.GG30Oct2020.MboI.sorted.bed.gz"
 
 # Assign UMIs to cutsites
 scripts/umis2cutsite.py \

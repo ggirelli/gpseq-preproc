@@ -1,9 +1,9 @@
-libid_list=("TK270")
-libid_list+=("TK271")
-libid_list+=("TK272")
-libid_list+=("TK273")
-libid_list+=("TK274")
-libid_list+=("TK275")
+libid_list=("TK306")
+libid_list+=("TK307")
+libid_list+=("TK308")
+libid_list+=("TK309")
+libid_list+=("TK310")
+libid_list+=("TK311")
 
 snp_file="/mnt/data/Sequencing/EMBL_Mouse_chimera_SNP/SNPs/C57BL-6J_CAST-EiJ.txt.gz"
 
@@ -21,7 +21,7 @@ done
 
 for libid in ${libid_list[@]}; do
 	# Correct aligned position
-	mkdir genome12/atcs
+	mkdir -p genome12/atcs
 	sambamba view -q -t $threads -h -f bam -F "reverse_strand" \
 		genome12/mapping/$libid.bam -o genome12/atcs/$libid.clean.revs.bam
 	sambamba view -q -t $threads genome12/atcs/$libid.clean.revs.bam | \
@@ -49,21 +49,21 @@ for libid in ${libid_list[@]}; do
 	rm genome12/atcs/$libid.clean.plus.umi.txt.gz genome12/atcs/$libid.clean.revs.umi.txt.gz
 
 	# Assign UMIs to cutsites
-	cutsite_path="/mnt/data/Resources/mm10.r68/recognition_sites/mm10.r68.MboI.bed.gz"
+	cutsite_path="/mnt/data/Sequencing/EMBL_Mouse_chimera_SNP/C57BL-6NJ_CAST-EiJ_genome12.GG30Oct2020.MboI.sorted.bed.gz"
 	scripts/umis2cutsite.py \
 		genome12/atcs/$libid.clean.umis.txt.gz $cutsite_path \
 		genome12/atcs/$libid.clean.umis_at_cs.txt.gz --compress --threads $threads
 	rm genome12/atcs/$libid.clean.umis.txt.gz
 
 	# Deduplicate
-	mkdir genome12/dedup
+	mkdir -p genome12/dedup
 	scripts/umi_dedupl.R \
 		genome12/atcs/$libid.clean.umis_at_cs.txt.gz \
 		genome12/dedup/$libid.clean.umis_dedupd.txt.gz \
 		-c 20 -r 10000
 
 	# Generate final bed
-	mkdir genome12/bed
+	mkdir -p genome12/bed
 	zcat genome12/dedup/$libid.clean.umis_dedupd.txt.gz | \
 		awk 'BEGIN{FS=OFS="\t"}{print $1 FS $2 FS $2 FS "pos_"NR FS $4}' | \
 		gzip > genome12/bed/$libid.genome12.bed.gz

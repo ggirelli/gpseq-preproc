@@ -1,5 +1,5 @@
-input="fastq/TK311_S6_LALL_R1_001.fastq.gz"
-libid="TK311"
+input="fastq/TK287_S6_LALL_R1_001.fastq.gz"
+libid="TK287"
 
 threads=10
 

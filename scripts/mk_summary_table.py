@@ -39,13 +39,13 @@ logging.info(f"Looking into '{args.root}'...")
 patterns = {}
 patterns[
     "quality_filters"
-] = ".* ([0-9]+)/([0-9]+) \(([0-9\.%]+)\).*flag_extract\.py:244"
+] = ".* ([0-9]+)/([0-9]+) \(([0-9\.%]+)\).*flag_extract\.py:251"
 patterns[
     "prefix"
-] = ".* ([0-9]+)/([0-9]+) \(([0-9\.%]+)\).*flag_regex\.py:159"
+] = ".* ([0-9]+)/([0-9]+) \(([0-9\.%]+)\).*flag_regex\.py:161"
 patterns["mapping_unmapped"] = ".* ([0-9]+) \([0-9\.]+%\) aligned 0 times"
 patterns["mapping_2nd_aln"] = ".* ([0-9]+) \([0-9\.]+%\) aligned >1 times"
-patterns["fromCS"] = "Output: ([0-9]+) \(([0-9\.]+%)\) UMI sequences over "
+patterns["fromCS"] = ".* Output: ([0-9]+) \(([0-9\.]+%)\) UMI sequences over "
 patterns["dedup"] = "([0-9]+) UMIs left after deduplication."
 
 dataframe = pd.DataFrame()

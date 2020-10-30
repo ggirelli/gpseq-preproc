@@ -1,4 +1,4 @@
-libid="TK300"
+libid="TK311"
 
 snp_file="/mnt/data/Sequencing/EMBL_Mouse_chimera_SNP/SNPs/C57BL-6J_CAST-EiJ.txt.gz"
 
@@ -17,8 +17,10 @@ glab_list=("genome1")
 glab_list+=("genome2")
 
 for glab in ${glab_list[@]}; do
+	cutsite_path="/mnt/data/Sequencing/EMBL_Mouse_chimera_SNP/C57BL-6NJ_CAST-EiJ_"$glab".GG30Oct2020.MboI.sorted.bed.gz"
+	
 	# Correct aligned position
-	mkdir $glab/atcs
+	mkdir -p $glab/atcs
 	sambamba view -q -t $threads -h -f bam -F "reverse_strand" \
 		$glab/mapping/$libid.bam -o $glab/atcs/$libid.clean.revs.bam
 	sambamba view -q -t $threads $glab/atcs/$libid.clean.revs.bam | \
@@ -51,14 +53,14 @@ for glab in ${glab_list[@]}; do
 	rm $glab/atcs/$libid.clean.umis.txt.gz
 
 	# Deduplicate
-	mkdir $glab/dedup
+	mkdir -p $glab/dedup
 	scripts/umi_dedupl.R \
 		$glab/atcs/$libid.clean.umis_at_cs.txt.gz \
 		$glab/dedup/$libid.clean.umis_dedupd.txt.gz \
 		-c $threads -r 10000
 
 	# Generate final bed
-	mkdir $glab/bed
+	mkdir -p $glab/bed
 	zcat $glab/dedup/$libid.clean.umis_dedupd.txt.gz | \
 		awk 'BEGIN{FS=OFS="\t"}{print $1 FS $2 FS $2 FS "pos_"NR FS $4}' | \
 		gzip > $glab/bed/$libid.$glab.bed.gz
