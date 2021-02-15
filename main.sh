@@ -1,7 +1,11 @@
-input="fastq/TK306_S1_LALL_R1_001.fastq.gz"
-libid="TK306"
+# input="fastq/TK270_S1_LALL_R1_001.fastq.gz"
+# libid="TK270"
 
-bowtie2_ref="/mnt/data/Sequencing/EMBL_Mouse_chimera_SNP/SNP_masked_ref/C57BL-6NJ_CAST-EiJ_Nmask.bowtie2"
+# bowtie2_ref="/mnt/data/Sequencing/EMBL_Mouse_chimera_SNP/SNP_masked_ref/C57BL-6NJ_CAST-EiJ_Nmask.GG20Oct2020"
+# cutsite_path="/mnt/data/Sequencing/EMBL_Mouse_chimera_SNP/C57BL-6NJ_CAST-EiJ_genome12.GG30Oct2020.MboI.sorted.bed.gz"
+
+bowtie2_ref="/mnt/data/Resources/references/GRCm38.r95.dna/Mus_musculus.GRCm38.95.dna.fa"
+cutsite_path="/mnt/data/Resources/mm10.r95/recognition_sites/mm10.r95.MboI.bed.gz"
 
 threads=10
 
@@ -60,9 +64,6 @@ scripts/group_umis.py \
 	atcs/$libid.clean.umis.txt.gz \
 	--compress-level 6 --len 4
 rm atcs/$libid.clean.plus.umi.txt.gz atcs/$libid.clean.revs.umi.txt.gz
-
-
-cutsite_path="/mnt/data/Sequencing/EMBL_Mouse_chimera_SNP/C57BL-6NJ_CAST-EiJ_genome12.GG30Oct2020.MboI.sorted.bed.gz"
 
 # Assign UMIs to cutsites
 scripts/umis2cutsite.py \
