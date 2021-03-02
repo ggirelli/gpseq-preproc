@@ -15,7 +15,7 @@ fbarber flag regex \
 	fastq_hq/$libid.hq.fastq.gz fastq_prefix/$libid.fastq.gz \
 	--unmatched-output fastq_prefix/$libid.unmatched.fastq.gz \
 	--log-file fastq_prefix/$libid.log \
-	--pattern "bc,^(?<bc>GTCGTATC){s<2}$" "cs,^(?<cs>GATC){s<2}$" \
+	--pattern "bc,^(?<bc>GTCGTCGA){s<2}$" "cs,^(?<cs>GATC){s<2}$" \
 	--threads $threads --chunk-size 200000
 
 # Align
@@ -27,6 +27,12 @@ bowtie2 \
 
 # Filter alignment
 sambamba view -q -S mapping/$libid.sam -f bam -t $threads > mapping/$libid.bam
+
+
+curl -X POST -H 'Content-type: application/json' \
+	--data '{"text":"Finished mapping '"$libid"'! Waiting for user input."}' \
+	https://hooks.slack.com/services/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
+
 rm -i mapping/$libid.sam
 sambamba view -q mapping/$libid.bam -f bam \
 	-F "mapping_quality<30" -c -t $threads \
@@ -84,3 +90,7 @@ zcat dedup/$libid.clean.umis_dedupd.txt.gz | \
 	awk 'BEGIN{FS=OFS="\t"}{print $1 FS $2 FS $2 FS "pos_"NR FS $4}' | \
 	gzip > bed/$libid.bed.gz
 
+
+curl -X POST -H 'Content-type: application/json' \
+	--data '{"text":"Finished processing '"$libid"'!"}' \
+	https://hooks.slack.com/services/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
