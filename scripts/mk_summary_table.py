@@ -39,7 +39,7 @@ logging.info(f"Looking into '{args.root}'...")
 patterns = {}
 patterns[
     "quality_filters"
-] = ".* ([0-9]+)/([0-9]+) \(([0-9\.%]+)\).*flag_extract\.py:251"
+] = ".* ([0-9]+)/([0-9]+) \(([0-9\.%]+)\).*flag_extract\.py:246"
 patterns[
     "prefix"
 ] = ".* ([0-9]+)/([0-9]+) \(([0-9\.%]+)\).*flag_regex\.py:161"
