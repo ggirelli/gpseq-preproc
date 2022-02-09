@@ -42,7 +42,7 @@ patterns[
 ] = ".* ([0-9]+)/([0-9]+) \(([0-9\.%]+)\).*flag_extract\.py:246"
 patterns[
     "prefix"
-] = ".* ([0-9]+)/([0-9]+) \(([0-9\.%]+)\).*flag_regex\.py:161"
+] = ".* ([0-9]+)/([0-9]+) \(([0-9\.%]+)\).*flag_regex\.py:156"
 patterns["mapping_unmapped"] = ".* ([0-9]+) \([0-9\.]+%\) aligned 0 times"
 patterns["mapping_2nd_aln"] = ".* ([0-9]+) \([0-9\.]+%\) aligned >1 times"
 patterns["fromCS"] = ".* Output: ([0-9]+) \(([0-9\.]+%)\) UMI sequences over "

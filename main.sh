@@ -7,6 +7,13 @@
 bowtie2_ref="/mnt/data/Resources/references/GRCm38.r95.dna/Mus_musculus.GRCm38.95.dna.fa"
 cutsite_path="/mnt/data/Resources/mm10.r95/recognition_sites/mm10.r95.MboI.bed.gz"
 
+# bowtie2_ref="/mnt/data/Resources/references/Grch37.r75.dna/Homo_sapiens.GRCh37.75.dna"
+# cutsite_path="/mnt/data/Resources/hg19/recognition_sites/hg19.MboI.bed.gz"
+
+# cutsite_path="/mnt/data/Resources/GRCg6a/GRCg6a.DpnII.noChr.bed"
+
+cutsite_length=4
+
 threads=10
 
 # Filter by prefix
@@ -15,7 +22,7 @@ fbarber flag regex \
 	fastq_hq/$libid.hq.fastq.gz fastq_prefix/$libid.fastq.gz \
 	--unmatched-output fastq_prefix/$libid.unmatched.fastq.gz \
 	--log-file fastq_prefix/$libid.log \
-	--pattern "bc,^(?<bc>GTCGTCGA){s<2}$" "cs,^(?<cs>GATC){s<2}$" \
+	--pattern "bc,^(?<bc>GTCGTATC){s<2}$" "cs,^(?<cs>GATC){s<2}$" \
 	--threads $threads --chunk-size 200000
 
 # Align
@@ -31,7 +38,7 @@ sambamba view -q -S mapping/$libid.sam -f bam -t $threads > mapping/$libid.bam
 
 curl -X POST -H 'Content-type: application/json' \
 	--data '{"text":"Finished mapping '"$libid"'! Waiting for user input."}' \
-	https://hooks.slack.com/services/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
+	https://hooks.slack.com/services/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
 
 rm -i mapping/$libid.sam
 sambamba view -q mapping/$libid.bam -f bam \
@@ -68,7 +75,7 @@ scripts/group_umis.py \
 	atcs/$libid.clean.plus.umi.txt.gz \
 	atcs/$libid.clean.revs.umi.txt.gz \
 	atcs/$libid.clean.umis.txt.gz \
-	--compress-level 6 --len 4
+	--compress-level 6 --len "$cutsite_length"
 rm atcs/$libid.clean.plus.umi.txt.gz atcs/$libid.clean.revs.umi.txt.gz
 
 # Assign UMIs to cutsites
@@ -93,4 +100,4 @@ zcat dedup/$libid.clean.umis_dedupd.txt.gz | \
 
 curl -X POST -H 'Content-type: application/json' \
 	--data '{"text":"Finished processing '"$libid"'!"}' \
-	https://hooks.slack.com/services/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
+	https://hooks.slack.com/services/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

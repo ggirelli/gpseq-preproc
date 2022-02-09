@@ -98,7 +98,7 @@ with get_oh(args.output, args.compress_level) as OH:
     if args.compress_level > 0:
         logging.info(f"Compression level: {args.compress_level}")
     for chrom, pos_dict in track(umi_dict.items(), description="Chromosome"):
-        for pos, (seq, qual) in track(pos_dict.items(), description="Position"):
+        for pos, (seq, qual) in pos_dict.items():
             OH.write(
                 args.sep.join([chrom, str(pos), " ".join(seq), " ".join(qual)]) + "\n"
             )

@@ -147,7 +147,8 @@ logging.getLogger().addHandler(fh)
 logging.info(f"[green]Log to[/]\t\t{args.log}")
 
 logging.info("Reading RSs")
-rss = pd.read_csv(args.cutsites, "\t", names=["chrom", "start", "end", "name"])
+rss = pd.read_csv(args.cutsites, "\t", names=["chrom", "start", "end", "name"],
+    dtype=dict(chrom=str,start=int,end=int,name=str))
 
 logging.info("Reading UMIs")
 umi = pd.read_csv(
@@ -155,6 +156,7 @@ umi = pd.read_csv(
     sep="\t",
     header=None,
     names=("chrom", "pos", "seq", "qual"),
+    dtype=dict(chrom=str,pos=int,seq=str,qual=str),
 )
 
 chrom_list = sorted(set(umi["chrom"].values))

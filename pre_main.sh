@@ -1,5 +1,5 @@
-input="fastq/KG35_S6_LALL_R1_001.fastq.gz"
-libid="KG35"
+input="fastq/KG93_S5_LALL_R1_001.fastq.gz"
+libid="KG93"
 
 threads=10
 
@@ -20,4 +20,4 @@ fbarber flag extract \
 
 curl -X POST -H 'Content-type: application/json' \
 	--data '{"text":"Finished running pre-main for '"$libid"'"}' \
-	https://hooks.slack.com/services/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
+	https://hooks.slack.com/services/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
